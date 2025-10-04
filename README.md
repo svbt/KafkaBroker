@@ -2,7 +2,7 @@
 Kafka broker
 
 # Start Kafka:
-docker-compose p -d
+docker-compose up -d
 
 # Check if containers are running:
 docker ps
