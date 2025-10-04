@@ -1,16 +1,52 @@
 # Start cluster
 docker-compose up -d
 
+# Check no topics in broker
+docker exec -it kafka1 kafka-topics --bootstrap-server kafka1:19092,kafka2:19093 --list
+
 # Create topics (only once)
 docker exec -it kafka1 kafka-topics \
-  --create --topic reminders \
-  --partitions 2 --replication-factor 2 \
-  --bootstrap-server localhost:9092,localhost:9093
+  --create \
+  --topic reminders \
+  --partitions 2 \
+  --replication-factor 2 \
+  --bootstrap-server kafka1:19092,kafka2:19093
 
 docker exec -it kafka1 kafka-topics \
-  --create --topic playlist \
-  --partitions 2 --replication-factor 2 \
-  --bootstrap-server localhost:9092,localhost:9093
+  --create \
+  --topic playlist \
+  --partitions 2 \
+  --replication-factor 2 \
+  --bootstrap-server kafka1:19092,kafka2:19093
+
+📝 1️⃣ Produce messages to the reminders topic
+Open a terminal and run:
+docker exec -it kafka1 kafka-console-producer \
+  --broker-list kafka1:19092,kafka2:19093 \
+  --topic reminders
+You should get a blank prompt like:
+>
+
+Now type any messages you want, for example:
+>Hello world
+>This is a reminder
+>Buy milk
+Each line you type = one message sent to the topic.
+When done, press Ctrl + C to exit.
+
+📝 2️⃣ Consume messages from the reminders topic
+Open a second terminal and run:
+docker exec -it kafka2 kafka-console-consumer \
+  --bootstrap-server kafka1:19092,kafka2:19093 \
+  --topic reminders \
+  --from-beginning
+This tells the consumer to read all messages in the topic from the start.
+You should see the messages you produced earlier printed line by line:
+Hello world
+This is a reminder
+Buy milk
+You can leave this running while you produce more messages — it will display them live in real time.
+
 
 # Stop cluster
 docker-compose down
