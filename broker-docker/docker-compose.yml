@@ -61,11 +61,16 @@ services:
       - zookeeper
 
   producer:
-    build: ./producer
+    build:
+      context: ./producer
+      dockerfile: Dockerfile.producer
+    container_name: broker-docker-producer
     depends_on:
       - kafka1
       - kafka2
-
+    environment:
+      - KAFKA_BROKERS=kafka1:19092,kafka2:19093
+        
   consumer:
     build: ./consumer
     depends_on:

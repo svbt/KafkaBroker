@@ -27,8 +27,9 @@ int main()
             {"title", "Test Reminder"},
             {"timestamp", "2025-10-04T20:00:00Z"}
         };
-
-        producer.produce(MessageBuilder(topic).payload(payload.dump()));
+	
+	std::string serialized = payload.dump();
+	producer.produce(MessageBuilder(topic).payload(serialized));
         producer.flush();
         std::cout << "✅ Produced: " << payload.dump() << std::endl;
 
