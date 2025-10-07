@@ -72,8 +72,13 @@ services:
       - KAFKA_BROKERS=kafka1:19092,kafka2:19093
         
   consumer:
-    build: ./consumer
+    build:
+      context: ./consumer
+      dockerfile: Dockerfile.consumer
+    container_name: broker-docker-consumer
     depends_on:
       - kafka1
       - kafka2
+    environment:
+      - KAFKA_BROKERS=kafka1:19092,kafka2:19093
 

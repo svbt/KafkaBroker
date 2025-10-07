@@ -1,0 +1,41 @@
+# ---------- Stage 1: Build ----------
+FROM debian:bookworm-slim AS builder
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    g++ cmake make git pkg-config \
+    librdkafka-dev libboost-all-dev nlohmann-json3-dev \
+    libssl-dev libcrypto++-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Build and install cppkafka
+WORKDIR /tmp
+RUN git clone https://github.com/mfontanini/cppkafka.git && \
+    cd cppkafka && mkdir build && cd build && \
+    cmake .. -DCMAKE_INSTALL_PREFIX=/usr && \
+    make -j$(nproc) && make install
+
+# Copy your consumer source code into the container
+WORKDIR /app
+COPY . .
+
+# Build your consumer binary
+RUN PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/local/lib/pkgconfig \
+    cmake -B build -S . && cmake --build build
+
+# ---------- Stage 2: Runtime ----------
+FROM debian:bookworm-slim
+
+# Install runtime dependencies (no dev tools)
+RUN apt-get update && apt-get install -y \
+    librdkafka1 libboost-system1.81.0 nlohmann-json3-dev libssl3 libcrypto++8 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy built binaries and any required libs
+COPY --from=builder /usr/lib /usr/lib
+COPY --from=builder /usr/include /usr/include
+COPY --from=builder /usr/local/lib /usr/local/lib
+COPY --from=builder /app/build/consumer /usr/local/bin/consumer
+
+WORKDIR /usr/local/bin
+CMD ["./build/consumer"]
