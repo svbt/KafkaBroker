@@ -38,4 +38,4 @@ COPY --from=builder /usr/local/lib /usr/local/lib
 COPY --from=builder /app/build/consumer /usr/local/bin/consumer
 
 WORKDIR /usr/local/bin
-CMD ["./build/consumer"]
+CMD ["./consumer"]
