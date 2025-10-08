@@ -5,11 +5,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Boost REQUIRED)
-#find_package(PkgConfig REQUIRED)
 find_package(nlohmann_json REQUIRED)
 
-# Find librdkafka via pkg-config
-#pkg_check_modules(RDKAFKA REQUIRED librdkafka)
 find_library(RDKAFKA_LIB rdkafka REQUIRED)
 
 # Tell CMake where cppkafka is installed

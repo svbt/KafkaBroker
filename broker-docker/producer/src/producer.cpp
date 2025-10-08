@@ -28,8 +28,8 @@ int main()
             {"timestamp", "2025-10-04T20:00:00Z"}
         };
 	
-	std::string serialized = payload.dump();
-	producer.produce(MessageBuilder(topic).payload(serialized));
+    	std::string serialized = payload.dump();
+    	producer.produce(MessageBuilder(topic).payload(serialized));
         producer.flush();
         std::cout << "✅ Produced: " << payload.dump() << std::endl;
 
