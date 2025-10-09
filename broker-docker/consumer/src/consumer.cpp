@@ -21,15 +21,20 @@ int main()
     while (true) 
     {
         Message msg = consumer.poll();
-        if (msg) {
-            if (msg.get_error()) {
+        if (msg) 
+        {
+            if (msg.get_error()) 
+            {
                 std::cerr << "⚠️ Error: " << msg.get_error() << std::endl;
                 continue;
             }
-            try {
+            try 
+            {
                 auto j = json::parse(msg.get_payload());
                 std::cout << "📥 Received: " << j.dump() << std::endl;
-            } catch (const std::exception& e) {
+            } 
+            catch (const std::exception& e) 
+            {
                 std::cerr << "JSON parse error: " << e.what() << std::endl;
             }
         }
