@@ -1,6 +1,18 @@
 # Start cluster
 docker-compose up -d
 
+# Check the docker containers are running
+docker-compose ps
+
+```
+NAME                     COMMAND                  SERVICE             STATUS              PORTS
+broker-docker-consumer   "./consumer"             consumer            running             
+broker-docker-producer   "./producer"             producer            running             
+kafka1                   "/etc/confluent/dock…"   kafka1              running             0.0.0.0:9092->9092/tcp, 0.0.0.0:19092->19092/tcp
+kafka2                   "/etc/confluent/dock…"   kafka2              running             0.0.0.0:9093->9093/tcp, 9092/tcp, 0.0.0.0:19093->19093/tcp
+zookeeper                "/etc/confluent/dock…"   zookeeper           running             2888/tcp, 0.0.0.0:2181->2181/tcp, 3888/tcp
+```
+
 # Check no topics in broker
 docker exec -it kafka1 kafka-topics --bootstrap-server kafka1:19092,kafka2:19093 --list
 
