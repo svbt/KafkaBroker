@@ -5,60 +5,48 @@ docker-compose up -d
 docker-compose ps
 
 ```
-NAME                     COMMAND                  SERVICE             STATUS              PORTS
-broker-docker-consumer   "./consumer"             consumer            running             
-broker-docker-producer   "./producer"             producer            running             
-kafka1                   "/etc/confluent/dock…"   kafka1              running             0.0.0.0:9092->9092/tcp, 0.0.0.0:19092->19092/tcp
-kafka2                   "/etc/confluent/dock…"   kafka2              running             0.0.0.0:9093->9093/tcp, 9092/tcp, 0.0.0.0:19093->19093/tcp
-zookeeper                "/etc/confluent/dock…"   zookeeper           running             2888/tcp, 0.0.0.0:2181->2181/tcp, 3888/tcp
+NAME                         COMMAND                   SERVICE             STATUS              PORTS
+broker-docker-consumer       "./consumer"              consumer            running             
+broker-docker-kafka-init-1   "bash -c '\n  cub kaf…"   kafka-init          exited (127)        
+broker-docker-producer       "./producer"              producer            running             
+kafka1                       "/etc/confluent/dock…"    kafka1              running             0.0.0.0:9092->9092/tcp, 0.0.0.0:19092->19092/tcp
+kafka2                       "/etc/confluent/dock…"    kafka2              running             0.0.0.0:9093->9093/tcp, 9092/tcp, 0.0.0.0:19093->19093/tcp
+zookeeper                    "/etc/confluent/dock…"    zookeeper           running             2888/tcp, 0.0.0.0:2181->2181/tcp, 3888/tcp
 ```
 
-# Check no topics in broker
+# Should see valid list of Topics been created
 docker exec -it kafka1 kafka-topics --bootstrap-server kafka1:19092,kafka2:19093 --list
+docker exec -it kafka2 kafka-topics --bootstrap-server kafka1:19092,kafka2:19093 --list
+```
+__consumer_offsets
+reminders
+```
 
-# Create topics (only once)
-docker exec -it kafka1 kafka-topics \
-  --create \
-  --topic reminders \
-  --partitions 2 \
-  --replication-factor 2 \
-  --bootstrap-server kafka1:19092,kafka2:19093
+# Check the Producer Messages
+docker logs -f broker-docker-producer 
+```
+🚀 Producer started...
+✅ Produced: {"id":1,"timestamp":"2025-10-04T20:00:00Z","title":"Test Reminder"}
+✅ Produced: {"id":2,"timestamp":"2025-10-04T20:00:00Z","title":"Test Reminder"}
+✅ Produced: {"id":3,"timestamp":"2025-10-04T20:00:00Z","title":"Test Reminder"}
+✅ Produced: {"id":4,"timestamp":"2025-10-04T20:00:00Z","title":"Test Reminder"}
+✅ Produced: {"id":5,"timestamp":"2025-10-04T20:00:00Z","title":"Test Reminder"}
+✅ Produced: {"id":6,"timestamp":"2025-10-04T20:00:00Z","title":"Test Reminder"}
+✅ Produced: {"id":7,"timestamp":"2025-10-04T20:00:00Z","title":"Test Reminder"}
+```
 
-docker exec -it kafka1 kafka-topics \
-  --create \
-  --topic playlist \
-  --partitions 2 \
-  --replication-factor 2 \
-  --bootstrap-server kafka1:19092,kafka2:19093
-
-📝 1️⃣ Produce messages to the reminders topic
-Open a terminal and run:
-docker exec -it kafka1 kafka-console-producer \
-  --broker-list kafka1:19092,kafka2:19093 \
-  --topic reminders
-You should get a blank prompt like:
->
-
-Now type any messages you want, for example:
->Hello world
->This is a reminder
->Buy milk
-Each line you type = one message sent to the topic.
-When done, press Ctrl + C to exit.
-
-📝 2️⃣ Consume messages from the reminders topic
-Open a second terminal and run:
-docker exec -it kafka2 kafka-console-consumer \
-  --bootstrap-server kafka1:19092,kafka2:19093 \
-  --topic reminders \
-  --from-beginning
-This tells the consumer to read all messages in the topic from the start.
-You should see the messages you produced earlier printed line by line:
-Hello world
-This is a reminder
-Buy milk
-You can leave this running while you produce more messages — it will display them live in real time.
-
+# Check the Consumer Messages
+docker logs -f broker-docker-consumer
+```
+📡 Consumer started...
+📥 Received: {"id":1,"timestamp":"2025-10-04T20:00:00Z","title":"Test Reminder"}
+📥 Received: {"id":2,"timestamp":"2025-10-04T20:00:00Z","title":"Test Reminder"}
+📥 Received: {"id":3,"timestamp":"2025-10-04T20:00:00Z","title":"Test Reminder"}
+📥 Received: {"id":4,"timestamp":"2025-10-04T20:00:00Z","title":"Test Reminder"}
+📥 Received: {"id":5,"timestamp":"2025-10-04T20:00:00Z","title":"Test Reminder"}
+📥 Received: {"id":6,"timestamp":"2025-10-04T20:00:00Z","title":"Test Reminder"}
+📥 Received: {"id":7,"timestamp":"2025-10-04T20:00:00Z","title":"Test Reminder"}
+```
 
 # Stop cluster
 docker-compose down
